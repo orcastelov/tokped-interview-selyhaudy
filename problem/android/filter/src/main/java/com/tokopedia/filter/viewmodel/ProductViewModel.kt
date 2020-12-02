@@ -1,26 +1,28 @@
 package com.tokopedia.filter.viewmodel
 
-import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.tokopedia.filter.R
-import com.tokopedia.filter.model.*
-import org.json.JSONObject
-import java.io.IOException
-import java.io.InputStream
-import java.nio.charset.Charset
+import com.tokopedia.filter.datasource.ProductLoader
+import com.tokopedia.filter.model.LocationFilterItem
+import com.tokopedia.filter.model.PriceFilter
+import com.tokopedia.filter.model.Product
+import com.tokopedia.filter.model.ProductFilter
+import com.tokopedia.filter.repo.ProductRepository
 
 
-class ProductViewModel: ViewModel() {
+class ProductViewModel(
+        private val repository: ProductRepository
+) : ViewModel() { // todo: protocol
 
     private val allProducts = mutableListOf<Product>()
     val activeProducts = MutableLiveData<List<Product>>()
     val activeProductFilter = MutableLiveData<ProductFilter>()
     private var hasInit = false
 
-    fun initData(context: Context){
-        if(!hasInit){
-            loadAllProducts(context)
+    fun initData(productLoader: ProductLoader) {
+        if (!hasInit) {
+            loadAllProducts(productLoader)
             val productFilter = createProductFilter()
             filterAllProducts(productFilter)
             activeProductFilter.postValue(productFilter)
@@ -55,52 +57,13 @@ class ProductViewModel: ViewModel() {
         activeProductFilter.postValue(lastProductFilter)
     }
 
-    private fun loadAllProducts(context: Context) {
-        val productJsonText = readProductJsonFile(context) ?: return
-        val productJson = JSONObject(productJsonText)
-        val productArray = productJson.getJSONObject("data").getJSONArray("products")
-
-        allProducts.clear()
-
-        for (i in 0 until productArray.length()) {
-            val product = productArray.getJSONObject(i)
-            val shop = product.getJSONObject("shop")
-            allProducts.add(
-                    Product(
-                            id = product.getInt("id"),
-                            name = product.getString("name"),
-                            imageUrl = product.getString("imageUrl"),
-                            priceInt = product.getInt("priceInt"),
-                            discountPercentage = product.getInt("discountPercentage"),
-                            slashedPriceInt = product.getInt("slashedPriceInt"),
-                            shop = Shop(
-                                    id = shop.getInt("id"),
-                                    name = shop.getString("name"),
-                                    city = shop.getString("city")
-                            )
-                    )
-            )
-        }
-    }
-
-    private fun readProductJsonFile(context: Context): String? {
-        var json: String? = null
-        json = try {
-            val inputStream: InputStream = context.resources.openRawResource(R.raw.products)
-            val size: Int = inputStream.available()
-            val buffer = ByteArray(size)
-            inputStream.read(buffer)
-            inputStream.close()
-            String(buffer, Charset.forName("UTF-8"))
-        } catch (ex: IOException) {
-            ex.printStackTrace()
-            return null
-        }
-        return json
+    // buat repo + product DB / File Loader
+    private fun loadAllProducts(productLoader: ProductLoader) {
+        allProducts.addAll(repository.loadProduct(productLoader, R.raw.products)) // todo execute in background
     }
 
     private fun filterAllProducts(productFilter: ProductFilter?) {
-        if(productFilter == null){
+        if (productFilter == null) {
             activeProducts.postValue(allProducts)
             return
         }
@@ -127,7 +90,7 @@ class ProductViewModel: ViewModel() {
         )
     }
 
-    private fun createProductFilter(): ProductFilter{
+    private fun createProductFilter(): ProductFilter {
         // City Filter
         val cityFrequency = allProducts.groupingBy {
             it.shop.city
@@ -136,8 +99,8 @@ class ProductViewModel: ViewModel() {
             cityFrequency[it]
         }
         val filterItem = mutableListOf<LocationFilterItem>()
-        for(i in sortedCity.indices){
-            if( i > 1 ){// only 2 items
+        for (i in sortedCity.indices) {
+            if (i > 1) {// only 2 items
                 break
             }
             filterItem.add(

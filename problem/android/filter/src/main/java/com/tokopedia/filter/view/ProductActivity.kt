@@ -12,10 +12,10 @@ class ProductActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product)
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null) { // todo: navigation-nya android
             val newFragment = ProductListFragment()
             val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
-            ft.add(R.id.product_list_container, newFragment).commit()
+            ft.replace(R.id.product_list_container, newFragment).commit()
         }
 
         filter_button.setOnClickListener {

@@ -10,12 +10,14 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
 import com.tokopedia.filter.R
 import com.tokopedia.filter.model.ProductFilter
+import com.tokopedia.filter.repo.ProductRepository
 import com.tokopedia.filter.viewmodel.ProductViewModel
+import com.tokopedia.filter.viewmodel.ProductViewModelFactory
 import kotlinx.android.synthetic.main.fragment_filter.*
 
 class FilterDialogFragment : BottomSheetDialogFragment() {
 
-    private val productViewModel: ProductViewModel by activityViewModels()
+    private val productViewModel: ProductViewModel by activityViewModels(){ ProductViewModelFactory(ProductRepository()) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_filter, null)
@@ -43,7 +45,7 @@ class FilterDialogFragment : BottomSheetDialogFragment() {
         fragment_filter_location_group.isSingleSelection = true
 
         //price
-        filter?.priceFilter?.also {priceFilter ->
+        filter?.priceFilter?.also { priceFilter ->
             fragment_filter_price_slider.apply {
                 valueFrom = priceFilter.minimumPrice.toFloat()
                 valueTo = priceFilter.maximumPrice.toFloat()
@@ -59,14 +61,14 @@ class FilterDialogFragment : BottomSheetDialogFragment() {
             var selectedLocation: String? = null
             for (index in 0 until fragment_filter_location_group.childCount) {
                 val chip = fragment_filter_location_group.getChildAt(index) as Chip
-                if(chip.isChecked){
+                if (chip.isChecked) {
                     selectedLocation = chip.text.toString()
                 }
             }
             productViewModel.applyFilter(
                     selectedLocation = selectedLocation,
-                    selectedMinimumPrice =  fragment_filter_price_slider.values.first().toInt(),
-                    selectedMaximumPrice =  fragment_filter_price_slider.values.last().toInt()
+                    selectedMinimumPrice = fragment_filter_price_slider.values.first().toInt(),
+                    selectedMaximumPrice = fragment_filter_price_slider.values.last().toInt()
             )
             dismiss()
         }
