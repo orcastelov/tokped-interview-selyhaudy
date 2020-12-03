@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.tokopedia.maps.model.Country
 import com.tokopedia.maps.viewmodel.MapsViewModel
+import com.tokopedia.maps.viewmodel.MapsViewModelImpl
 import com.tokopedia.maps.viewmodel.MapsViewModelFactory
 
 
@@ -25,7 +26,7 @@ open class MapsActivity : AppCompatActivity() {
     private var mapFragment: SupportMapFragment? = null
     private var googleMap: GoogleMap? = null
     private val viewModel: MapsViewModel by lazy {
-        ViewModelProvider(this, MapsViewModelFactory()).get(MapsViewModel::class.java)
+        ViewModelProvider(this, MapsViewModelFactory()).get(MapsViewModelImpl::class.java)
     }
 
     private lateinit var textCountryName: TextView

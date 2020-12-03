@@ -9,15 +9,22 @@ import androidx.lifecycle.Observer
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
 import com.tokopedia.filter.R
+import com.tokopedia.filter.datasource.ProductLoaderImpl
 import com.tokopedia.filter.model.ProductFilter
 import com.tokopedia.filter.repo.ProductRepository
 import com.tokopedia.filter.viewmodel.ProductViewModel
+import com.tokopedia.filter.viewmodel.ProductViewModelImpl
 import com.tokopedia.filter.viewmodel.ProductViewModelFactory
 import kotlinx.android.synthetic.main.fragment_filter.*
 
 class FilterDialogFragment : BottomSheetDialogFragment() {
 
-    private val productViewModel: ProductViewModel by activityViewModels(){ ProductViewModelFactory(ProductRepository()) }
+    private val productViewModel: ProductViewModel by activityViewModels<ProductViewModelImpl>{
+        ProductViewModelFactory(
+                ProductLoaderImpl(context!!),
+                ProductRepository()
+        )
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_filter, null)

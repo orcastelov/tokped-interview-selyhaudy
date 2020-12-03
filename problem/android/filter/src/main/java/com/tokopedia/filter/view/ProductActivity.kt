@@ -12,7 +12,7 @@ class ProductActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product)
 
-        if (savedInstanceState == null) { // todo: navigation-nya android
+        if (savedInstanceState == null) {
             val newFragment = ProductListFragment()
             val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
             ft.replace(R.id.product_list_container, newFragment).commit()

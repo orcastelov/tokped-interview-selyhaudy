@@ -9,21 +9,21 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.tokopedia.filter.R
 import com.tokopedia.filter.adapter.ProductGridAdapter
-import com.tokopedia.filter.datasource.ProductLoader
+import com.tokopedia.filter.datasource.ProductLoaderImpl
 import com.tokopedia.filter.model.Product
 import com.tokopedia.filter.repo.ProductRepository
 import com.tokopedia.filter.viewmodel.ProductViewModel
+import com.tokopedia.filter.viewmodel.ProductViewModelImpl
 import com.tokopedia.filter.viewmodel.ProductViewModelFactory
 import kotlinx.android.synthetic.main.fragment_product_list.*
 
-class ProductListFragment: Fragment(){
+class ProductListFragment : Fragment() {
 
-    private val productViewModel: ProductViewModel by activityViewModels(){ ProductViewModelFactory(ProductRepository()) }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        val context = context ?: return
-        productViewModel.initData(ProductLoader(context))
+    private val productViewModel: ProductViewModel by activityViewModels<ProductViewModelImpl>() {
+        ProductViewModelFactory(
+                ProductLoaderImpl(context!!),
+                ProductRepository()
+        )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -41,7 +41,7 @@ class ProductListFragment: Fragment(){
         )
     }
 
-    private fun handleProducts(productList: List<Product>){
+    private fun handleProducts(productList: List<Product>) {
         val context = context ?: return
         fragment_product_list_grid.adapter = ProductGridAdapter(
                 context,
