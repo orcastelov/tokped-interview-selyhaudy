@@ -20,5 +20,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         app:fabSize="normal"
-        app:rippleColor="@android:color/holo_green_dark"/>
+        app:rippleColor="@android:color/darker_gray"
+        android:backgroundTint="@android:color/white"
+        app:borderWidth="0dp"/>
 </RelativeLayout>
